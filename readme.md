@@ -57,3 +57,5 @@ JWT is used for stateless authentication. In this project, tokens are stored in 
 
 ## Author
 Jatin
+
+Final PR update
