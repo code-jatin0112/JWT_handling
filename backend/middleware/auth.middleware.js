@@ -10,7 +10,7 @@ const authMiddleware = (req, res, next) => {
 
     const token = header.split(" ")[1];
 
-    const decoded = jwt.verify(token, "devsecret"); // same secret as login
+    const decoded = jwt.verify(token, "devsecret");
 
     req.user = decoded;
 
