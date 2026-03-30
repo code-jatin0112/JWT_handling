@@ -1,15 +1,33 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./config/db');
+// backend/server.js (quick test server)
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
-
-connectDB();
-
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-app.use('/api/auth', require('./routes/auth.routes'));
+const JWT_SECRET = "devsecret"; // use .env in real projects
 
-app.listen(5000, () => console.log('Server running on 5000'));
+app.post("/api/auth/login", (req, res) => {
+  const { email, password } = req.body;
+  // For test: accept any password (do not do this in production)
+  if (!email || !password) return res.status(400).json({ message: "Missing" });
+  const token = jwt.sign({ email, name: email.split("@")[0] }, JWT_SECRET, { expiresIn: "1h" });
+  res.json({ token, user: { email, name: email.split("@")[0] } });
+});
+
+app.get("/api/protected/profile", (req, res) => {
+  const header = req.headers.authorization;
+  if (!header) return res.status(401).json({ message: "No token" });
+  const token = header.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({ message: "Protected", user: decoded });
+  } catch {
+    res.status(401).json({ message: "Invalid token" });
+  }
+});
+
+app.listen(5000, ()=>console.log("API on 5000"));
